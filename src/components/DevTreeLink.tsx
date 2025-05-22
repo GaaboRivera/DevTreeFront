@@ -6,9 +6,14 @@ type DevTreeLinkProps = {
 
 export default function DevTreeLink({ link }: DevTreeLinkProps) {
   return (
-    <div
-      className="w-12 h-12 bg-cover"
-      //   style={{ backgroundImage: `url(/social/icon_${item.name}.svg)` }}
-    ></div>
+    <li className="flex items-center gap-5 px-5 py-2 bg-white rounded-lg">
+      <div
+        className="w-12 h-12 bg-cover"
+        style={{ backgroundImage: `url(/social/icon_${link.name}.svg)` }}
+      ></div>
+      <p className="capitalize">
+        Visita mi: <span className="font-bold">{link.name}</span>
+      </p>
+    </li>
   );
 }

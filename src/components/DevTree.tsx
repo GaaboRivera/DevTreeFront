@@ -1,6 +1,12 @@
 import NavigationTabs from './NavigationTabs';
 import { Link, Outlet } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
 import { SocialNetwork, User } from '../types';
 import { useEffect, useState } from 'react';
 import DevTreeLink from './DevTreeLink';
@@ -19,6 +25,11 @@ export default function DevTree({ data }: DevTreeProps) {
       JSON.parse(data.links).filter((item: SocialNetwork) => item.enabled),
     );
   }, [data]);
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    console.log(e.active);
+    console.log(e.over);
+  };
 
   return (
     <>
@@ -68,11 +79,21 @@ export default function DevTree({ data }: DevTreeProps) {
               <p className="text-lg font-black text-center text-white">
                 {data.description}
               </p>
-              <div className="flex flex-col gap-5 mt-20">
-                {enableLinks.map((link) => (
-                  <DevTreeLink key={link.name} link={link} />
-                ))}
-              </div>
+              <DndContext
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="flex flex-col gap-5 mt-20">
+                  <SortableContext
+                    items={enableLinks}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {enableLinks.map((link) => (
+                      <DevTreeLink key={link.name} link={link} />
+                    ))}
+                  </SortableContext>
+                </div>
+              </DndContext>
             </div>
           </div>
         </main>

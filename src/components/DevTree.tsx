@@ -10,6 +10,7 @@ import {
 import { SocialNetwork, User } from '../types';
 import { useEffect, useState } from 'react';
 import DevTreeLink from './DevTreeLink';
+import { useQueryClient } from '@tanstack/react-query';
 
 type DevTreeProps = {
   data: User;
@@ -25,10 +26,29 @@ export default function DevTree({ data }: DevTreeProps) {
       JSON.parse(data.links).filter((item: SocialNetwork) => item.enabled),
     );
   }, [data]);
+  const queryClient = useQueryClient();
 
   const handleDragEnd = (e: DragEndEvent) => {
-    console.log(e.active);
-    console.log(e.over);
+    const { active, over } = e;
+    if (over && over.id) {
+      const prevIndex = enableLinks.findIndex((link) => link.id === active.id);
+      const newIndex = enableLinks.findIndex((link) => link.id === over.id);
+      const order = arrayMove(enableLinks, prevIndex, newIndex);
+      setEnableLinks(order);
+
+      const disabledLinks: SocialNetwork[] = JSON.parse(data.links).filter(
+        (item: SocialNetwork) => !item.enabled,
+      );
+      const links = order.concat(disabledLinks);
+
+      //*Almacenar en la base de datos
+      queryClient.setQueryData(['user'], (prevData: User) => {
+        return {
+          ...prevData,
+          links: JSON.stringify(links),
+        };
+      });
+    }
   };
 
   return (
